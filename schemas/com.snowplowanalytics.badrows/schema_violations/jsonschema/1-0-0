@@ -1,0 +1,167 @@
+{
+  "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+  "description": "Schema for a bad row resulting from schema violations",
+  "self": {
+    "vendor": "com.snowplowanalytics.badrows",
+    "name": "schema_violations",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "failure": {
+      "type": "object",
+      "description": "Information regarding the schema violations",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp at which the failure occurred",
+          "format": "date-time"
+        },
+        "messages": {
+          "type": "array",
+          "description": "List of failure messages associated with the schema violations",
+          "items": {
+            "type": "object",
+            "description": "Individual schema violation",
+            "anyOf": [
+              {
+                "properties": {
+                  "schemaKey": {
+                    "type": "string",
+                    "description": "Schema which caused the failure",
+                    "pattern": "^iglu:[a-zA-Z0-9-_.]+/[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+/[0-9]+-[0-9]+-[0-9]+$"
+                  },
+                  "instance": {
+                    "type": "string",
+                    "description": "Where the offending data was found",
+                    "maxLength": 128
+                  },
+                  "igluRepositories": {
+                    "type": "array",
+                    "description": "Iglu repositories tried or where the offending schema was found",
+                    "items": {
+                      "type": "string",
+                      "description": "Name of the Iglu repository",
+                      "maxLength": 128
+                    }
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Failure message associated with this schema violation",
+                    "maxLength": 256
+                  }
+                },
+                "required": [ "schemaKey", "instance", "igluRepositories", "message" ],
+                "additionalProperties": false
+              },
+              {
+                "properties": {
+                  "schemaKey": {
+                    "type": "string",
+                    "description": "Schema which was violated",
+                    "pattern": "^iglu:[a-zA-Z0-9-_.]+/[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+/[0-9]+-[0-9]+-[0-9]+$"
+                  },
+                  "instance": {
+                    "type": "string",
+                    "description": "Where the offending data was found",
+                    "maxLength": 128
+                  },
+                  "igluRepositories": {
+                    "type": "array",
+                    "description": "Iglu repositories tried or where the offending schema was found",
+                    "items": {
+                      "type": "string",
+                      "description": "Name of the Iglu repository",
+                      "maxLength": 128
+                    }
+                  },
+                  "property": {
+                    "type": "string",
+                    "description": "Property which caused the schema violation",
+                    "maxLength": 256
+                  },
+                  "value": {
+                    "type": "integer",
+                    "description": "Recorded value that caused the schema violation"
+                  },
+                  "expected": {
+                    "type": "integer",
+                    "description": "Maximum or minimum value allowed"
+                  }
+                },
+                "required": [ "schemaKey", "instance", "igluRepositories", "property", "value", "expected" ],
+                "additionalProperties": false
+              },
+              {
+                "properties": {
+                  "etc": {
+                    "type": "string"
+                  }
+                },
+                "required": [ "etc" ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "description": "The collector payload that resulted in schema violations",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp at which the payload was collected",
+          "format": "date-time"
+        },
+        "headers": {
+          "type": "object",
+          "description": "List of the headers part of this collector payload"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path requested by this collector payload",
+          "maxLength": 256
+        },
+        "queryString": {
+          "type": [ "string", "null" ],
+          "description": "Query string associated with this collector payload"
+        },
+        "body": {
+          "type": [ "string", "null" ],
+          "description": "Body associated with this collector payload"
+        }
+      },
+      "required": [ "timestamp", "headers", "path", "queryString", "body" ],
+      "additionalProperties": false
+    },
+    "processor": {
+      "type": "object",
+      "description": "Information about the piece of software responsible for the creation of schema violations",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "description": "Artifact responsible for the creation of schema violations",
+          "maxLength": 512
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the artifact responsible for the creation of schema violations",
+          "pattern": "^(\\d+\\.\\d+\\.\\d+.*)$",
+          "maxLength": 32
+        },
+        "platform": {
+          "type": "string",
+          "description": "Platform on which the artifact was running when schema violations occurred",
+          "maxLength": 64
+        }
+      },
+      "required": [ "artifact", "version", "platform" ],
+      "additionalProperties": false
+    }
+  },
+  "required": [ "failure", "payload", "processor" ],
+  "additionalProperties": false
+}
